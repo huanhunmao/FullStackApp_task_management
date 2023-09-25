@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useState, useEffect} from 'react';
+import TaskList from './components/TaskList';
+import TaskForm from './components/TaskForm';
+import {fetchTasks, addTask } from './actions/taskActions'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function App(){
+    const [tasks, setTasks] = useState([])
+
+    useEffect(() => {
+        const getTasks = async () => {
+            const tasksFromServer = await fetchTasks()
+            setTasks(tasksFromServer)
+        }
+        getTasks()
+    },[])
+
+    const  handleAddTask = async (task) => {
+        if(task.name.length === 0 || task.dueDate.length === 0) {
+            alert('添加失败，请添加任务和时间')
+            return
+        }
+        const newTask = await addTask(task)
+        setTasks([...tasks, newTask])
+    }
+
+    return (
+        <div>
+            <TaskForm addTask={handleAddTask}/>
+            <TaskList tasks={tasks} setTasks={setTasks}/>
+        </div>
+    )
 }
 
-export default App;
+export default App
